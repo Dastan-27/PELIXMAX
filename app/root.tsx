@@ -8,6 +8,8 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { AppProvider } from "~/lib/state";
+import { Navbar } from "~/components/Navbar";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -42,7 +44,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <AppProvider>
+      <Navbar />
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <Outlet />
+      </main>
+    </AppProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

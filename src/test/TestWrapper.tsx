@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
+import React, { type ReactNode } from 'react';
+import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom';
 
 type TestWrapperProps = {
   children: ReactNode;
