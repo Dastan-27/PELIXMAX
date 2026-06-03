@@ -78,6 +78,17 @@ export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails
   });
 }
 
+export async function getTVShowDetails(showId: number): Promise<TMDBMovieDetails> {
+  return fetchFromTMDB<TMDBMovieDetails>(`/tv/${showId}`, {
+    language: "en-US",
+    append_to_response: "credits,videos,recommendations",
+  });
+}
+
+export async function getMediaDetails(mediaType: "movie" | "tv", mediaId: number): Promise<TMDBMovieDetails> {
+  return mediaType === "tv" ? getTVShowDetails(mediaId) : getMovieDetails(mediaId);
+}
+
 export async function getGenres(mediaType: "movie" | "tv" = "movie"): Promise<TMDBGenre[]> {
   const data = await fetchFromTMDB<{ genres: TMDBGenre[] }>(
     `/genre/${mediaType}/list`,

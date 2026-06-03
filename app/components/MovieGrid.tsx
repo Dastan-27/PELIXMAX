@@ -26,9 +26,9 @@ export function MovieGrid({
 
   if (loading) {
     return (
-      <section>
+      <section aria-busy="true">
         {title && <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h2>}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {Array.from({ length: 12 }).map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="aspect-[2/3] rounded-xl bg-gray-200 dark:bg-gray-700" />
@@ -46,8 +46,19 @@ export function MovieGrid({
   if (items.length === 0) {
     return (
       <div className="py-12 text-center">
-        <svg className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+        <svg
+          className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-gray-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+          />
         </svg>
         <p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
       </div>
@@ -59,7 +70,7 @@ export function MovieGrid({
       {title && (
         <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h2>
       )}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {items.map((media, index) => (
           <MovieCard key={`${media.media_type}-${media.id}`} media={media} index={index} />
         ))}
