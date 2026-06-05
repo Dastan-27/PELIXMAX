@@ -1,87 +1,117 @@
-# Welcome to React Router!
+# PelixMax
 
-A modern, production-ready template for building full-stack React applications using React Router.
+PelixMax es un MVP frontend para explorar peliculas y series consumiendo la API de TMDB. La aplicacion permite consultar tendencias, contenido popular, mejor calificado, proximos estrenos, busqueda por titulo y paginas de detalle para peliculas o series.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+El proyecto se desarrollo como parte del taller de Producto Minimo Viable con backlog en GitHub, Pull Requests, roles tecnicos por integrante y despliegue orientado a Netlify o contenedor Docker.
 
-## Features
+## Alcance Del MVP
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Consumo de datos reales desde TMDB.
+- Rutas con React Router v7.
+- UI responsiva con Tailwind CSS.
+- Estado global centralizado con Context API.
+- Persistencia local del flujo relevante del usuario.
+- Logica de temporizador para dinamicas del MVP.
+- Alertas sonoras para eventos relevantes.
+- Tipado estricto con TypeScript.
 
-## Getting Started
+## Stack Tecnico
 
-### Installation
+- React 19
+- React Router 7
+- TypeScript
+- Tailwind CSS 4
+- Vite
+- Vitest
+- Zod
+- pnpm
+- Docker
 
-Install the dependencies:
+## Estructura Principal
+
+```text
+app/
+  components/       Componentes visuales reutilizables
+  hooks/            Hooks para busqueda, debounce y consumo TMDB
+  lib/              Estado global, tipos y cliente servidor de TMDB
+  routes/           Rutas de home, busqueda, detalle y API interna
+src/
+  setupTests.ts     Configuracion base de pruebas
+public/             Assets publicos
+```
+
+## Variables De Entorno
+
+La app necesita un token de lectura de TMDB.
+
+1. Crea el archivo `.env` tomando como base `.env.example`.
+2. Configura `TMDB_ACCESS_TOKEN` con el access token de TMDB.
+
+Ejemplo:
 
 ```bash
-npm install
+TMDB_BASE_URL=https://api.themoviedb.org/3
+TMDB_ACCESS_TOKEN=tu_access_token_de_tmdb
 ```
 
-### Development
+No subas tokens reales al repositorio.
 
-Start the development server with HMR:
+## Encender La App En Local
+
+Instala dependencias:
 
 ```bash
-npm run dev
+pnpm install
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
+Ejecuta el servidor de desarrollo:
 
 ```bash
-npm run build
+pnpm dev
 ```
 
-## Deployment
+Abre la app en:
 
-### Docker Deployment
+```text
+http://localhost:5173
+```
 
-To build and run using Docker:
+## Build De Produccion
+
+Genera el build:
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+pnpm build
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+Ejecuta el servidor de produccion local:
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+```bash
+pnpm start
 ```
 
-## Styling
+Por defecto React Router Serve expone la app en:
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+```text
+http://localhost:3000
+```
 
----
+## Scripts Disponibles
 
-Built with ❤️ using React Router.
+```bash
+pnpm dev          # Servidor de desarrollo
+pnpm build        # Build de produccion
+pnpm start        # Servidor de produccion
+pnpm typecheck    # Generacion de tipos de React Router y validacion TS
+pnpm test         # Vitest
+```
+
+Actualmente Vitest esta configurado, pero si no existen archivos `*.test` o `*.spec`, el runner reporta `No test files found`.
+
+## Flujo Funcional
+
+1. La home carga listas desde TMDB: tendencias, populares, top rated y upcoming.
+2. El usuario puede cambiar entre peliculas y series.
+3. La busqueda consulta TMDB y guarda resultados en estado global.
+4. Las tarjetas navegan a detalles por ruta dinamica.
+5. El estado global conserva datos relevantes del flujo en `localStorage`.

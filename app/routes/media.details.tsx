@@ -1,10 +1,29 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/media.details";
 import { getMediaDetails } from "~/lib/tmdb.server";
+import type { MediaType, TMDBMovieDetails } from "~/lib/types";
 
-export async function loader({ params }: Route.LoaderArgs) {
+type MediaDetailsData = Omit<TMDBMovieDetails, "media_type" | "title" | "release_date"> & {
+  media_type: MediaType;
+  title?: string;
+  name?: string;
+  release_date?: string;
+  first_air_date?: string;
+  episode_run_time?: number[];
+  number_of_seasons?: number;
+};
+
+function getDetailsTitle(media: MediaDetailsData) {
+  return media.title ?? media.name ?? "Untitled";
+}
+
+function getDetailsDate(media: MediaDetailsData) {
+  return media.release_date ?? media.first_air_date ?? "";
+}
+
+export async function loader({ params, request }: Route.LoaderArgs): Promise<MediaDetailsData> {
   const mediaId = Number(params.id);
-  const mediaType = params["*"]?.startsWith("tv") ? "tv" : "movie";
+  const mediaType: MediaType = new URL(request.url).pathname.startsWith("/tv/") ? "tv" : "movie";
 
   if (Number.isNaN(mediaId)) {
     throw new Response("Invalid media ID", { status: 400 });
@@ -12,7 +31,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   try {
     const media = await getMediaDetails(mediaType, mediaId);
-    return { ...media, media_type: mediaType };
+    return { ...media, media_type: mediaType } as MediaDetailsData;
   } catch {
     throw new Response("Media not found", { status: 404 });
   }
@@ -22,14 +41,15 @@ export function meta({ data }: Route.MetaArgs) {
   if (!data) {
     return [{ title: "Not found - PelixMax" }];
   }
-  const title = "title" in data ? data.title : data.name;
+  const media = data as MediaDetailsData;
+  const title = getDetailsTitle(media);
   return [
     { title: `${title} - PelixMax` },
-    { name: "description", content: data.overview?.slice(0, 160) },
+    { name: "description", content: media.overview?.slice(0, 160) },
     { property: "og:title", content: title },
-    { property: "og:description", content: data.overview?.slice(0, 160) },
-    ...(data.poster_path
-      ? [{ property: "og:image", content: `https://image.tmdb.org/t/p/w500${data.poster_path}` }]
+    { property: "og:description", content: media.overview?.slice(0, 160) },
+    ...(media.poster_path
+      ? [{ property: "og:image", content: `https://image.tmdb.org/t/p/w500${media.poster_path}` }]
       : []),
   ];
 }
@@ -37,10 +57,10 @@ export function meta({ data }: Route.MetaArgs) {
 const imageBase = "https://image.tmdb.org/t/p";
 
 export default function MediaDetails({ loaderData }: Route.ComponentProps) {
-  const media = loaderData;
-  const title = "title" in media ? media.title : media.name;
-  const date = "release_date" in media ? media.release_date : media.first_air_date;
-  const runtime = "runtime" in media ? media.runtime : media.episode_run_time?.[0];
+  const media = loaderData as MediaDetailsData;
+  const title = getDetailsTitle(media);
+  const date = getDetailsDate(media);
+  const runtime = media.runtime || media.episode_run_time?.[0];
 
   const backdrop = media.backdrop_path
     ? `${imageBase}/w1280${media.backdrop_path}`
