@@ -79,6 +79,22 @@ export type MediaType = "movie" | "tv";
 
 export type ViewMode = "trending" | "popular" | "top_rated" | "upcoming" | "search";
 
+export type SortMode = "popularity" | "rating" | "date" | "title";
+
+export interface FilterState {
+  minRating: number;
+  sortBy: SortMode;
+  includeMovies: boolean;
+  includeTvShows: boolean;
+}
+
+export interface TimerState {
+  durationSeconds: number;
+  remainingSeconds: number;
+  isRunning: boolean;
+  lastStartedAt: string | null;
+}
+
 export interface AppState {
   query: string;
   searchResults: TMDBMedia[];
@@ -86,6 +102,11 @@ export interface AppState {
   popular: TMDBMedia[];
   topRated: TMDBMedia[];
   upcoming: TMDBMedia[];
+  selectedMedia: TMDBMedia | null;
+  favorites: TMDBMedia[];
+  filters: FilterState;
+  timer: TimerState;
+  soundEnabled: boolean;
   selectedMediaType: MediaType;
   viewMode: ViewMode;
   loading: boolean;
@@ -99,6 +120,17 @@ export type AppAction =
   | { type: "SET_POPULAR"; payload: TMDBMedia[] }
   | { type: "SET_TOP_RATED"; payload: TMDBMedia[] }
   | { type: "SET_UPCOMING"; payload: TMDBMedia[] }
+  | { type: "SET_SELECTED_MEDIA"; payload: TMDBMedia | null }
+  | { type: "ADD_FAVORITE"; payload: TMDBMedia }
+  | { type: "REMOVE_FAVORITE"; payload: { id: number; mediaType: MediaType } }
+  | { type: "TOGGLE_FAVORITE"; payload: TMDBMedia }
+  | { type: "SET_FILTERS"; payload: Partial<FilterState> }
+  | { type: "RESET_FILTERS" }
+  | { type: "START_TIMER"; payload?: number }
+  | { type: "PAUSE_TIMER" }
+  | { type: "RESET_TIMER"; payload?: number }
+  | { type: "TICK_TIMER"; payload?: number }
+  | { type: "SET_SOUND_ENABLED"; payload: boolean }
   | { type: "SET_MEDIA_TYPE"; payload: MediaType }
   | { type: "SET_VIEW_MODE"; payload: ViewMode }
   | { type: "SET_LOADING"; payload: boolean }

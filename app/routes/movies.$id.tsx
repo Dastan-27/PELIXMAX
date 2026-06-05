@@ -1,8 +1,22 @@
 import { Link } from "react-router";
-import type { Route } from "./+types/movies.$id";
 import { getMovieDetails } from "~/lib/tmdb.server";
+import type { TMDBMovieDetails } from "~/lib/types";
 
-export async function loader({ params }: Route.LoaderArgs) {
+type LoaderArgs = {
+  params: {
+    id: string;
+  };
+};
+
+type MetaArgs = {
+  data?: TMDBMovieDetails;
+};
+
+type ComponentProps = {
+  loaderData: TMDBMovieDetails;
+};
+
+export async function loader({ params }: LoaderArgs): Promise<TMDBMovieDetails> {
   const movieId = Number(params.id);
   if (Number.isNaN(movieId)) {
     throw new Response("Invalid movie ID", { status: 400 });
@@ -11,7 +25,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   return movie;
 }
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data }: MetaArgs) {
   if (!data) {
     return [{ title: "Movie not found - PelixMax" }];
   }
@@ -28,7 +42,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 const imageBase = "https://image.tmdb.org/t/p";
 
-export default function MovieDetails({ loaderData }: Route.ComponentProps) {
+export default function MovieDetails({ loaderData }: ComponentProps) {
   const movie = loaderData;
   const backdrop = movie.backdrop_path
     ? `${imageBase}/w1280${movie.backdrop_path}`
