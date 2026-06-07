@@ -1,1 +1,64 @@
-Integracion de archivo
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  integration:
+    name: Calidad del código y compilación
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Consultar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Verificar tipos
+        run: pnpm run typecheck
+
+      - name: Ejecutar pruebas
+        run: pnpm run test
+        env:
+          CI: true
+
+      - name: Compilar aplicación
+        run: pnpm run build
+
+  docker-validation:
+    name: Validación de compilación de Docker
+    runs-on: ubuntu-latest
+    needs: integration # Solo se ejecuta si el trabajo de calidad del código pasa
+
+    steps:
+      - name: Consultar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Buildx de Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Construir imagen de Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false # Solo queremos verificar que la compilación funcione; las implementaciones a Render/Railway ocurren a través de Webhooks.
+          tags: pelixmax:test
+          # OPTIMIZACIÓN: Usar caché de GitHub Actions para acelerar drásticamente las compilaciones de Docker
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

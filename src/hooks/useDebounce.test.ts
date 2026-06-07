@@ -3,8 +3,8 @@ import { renderHook, act } from "@testing-library/react";
 import { useDebounce } from "~/hooks/useDebounce";
 
 describe("Debounce logic", () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
 
   it("delays value updates and resets timer on rapid changes", () => {
     const { result, rerender } = renderHook(({ value, delay }: { value: string; delay: number }) => useDebounce(value, delay), { initialProps: { value: "", delay: 300 } });

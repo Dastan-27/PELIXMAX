@@ -8,7 +8,7 @@ function routeError(status: number, statusText?: string) {
 
 describe("Error screen handling", () => {
   it("renders 404 and generic route error messages", () => {
-    render(<ErrorBoundary error={routeError(404, "Not Found")} />);
+    render(<ErrorBoundary error={routeError(404, "Not Found")} params={{}} />);
     expect(screen.getByText("404")).toBeInTheDocument();
     expect(screen.getByText("The requested page could not be found.")).toBeInTheDocument();
   });
