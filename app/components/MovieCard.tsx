@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Link } from "react-router";
 import type { TMDBMedia } from "~/lib/types";
 
@@ -8,11 +9,27 @@ interface MovieCardProps {
 
 const baseImageUrl = "https://image.tmdb.org/t/p/w342";
 
-export function MovieCard({ media, index = 0 }: MovieCardProps) {
+function MovieCardInner({ media, index = 0 }: MovieCardProps) {
   const title = "title" in media ? media.title : media.name;
   const date = "release_date" in media ? media.release_date : media.first_air_date;
   const year = date?.slice(0, 4) ?? "";
   const linkTo = media.media_type === "tv" ? `/tv/${media.id}` : `/movies/${media.id}`;
+
+  const poster = useMemo(() => media.poster_path ? (
+    <img
+      src={`${baseImageUrl}${media.poster_path}`}
+      alt={title}
+      loading={index < 6 ? "eager" : "lazy"}
+      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+    />
+  ) : (
+    <div className="flex h-full items-center justify-center p-4">
+      <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    </div>
+  ), [media.poster_path, title, index]);
 
   return (
     <Link
@@ -20,20 +37,7 @@ export function MovieCard({ media, index = 0 }: MovieCardProps) {
       className="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:bg-gray-800"
     >
       <div className="aspect-[2/3] overflow-hidden bg-gray-200 dark:bg-gray-700">
-        {media.poster_path ? (
-          <img
-            src={`${baseImageUrl}${media.poster_path}`}
-            alt={title}
-            loading={index < 6 ? "eager" : "lazy"}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center p-4">
-            <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-          </div>
-        )}
+        {poster}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
 
@@ -54,3 +58,5 @@ export function MovieCard({ media, index = 0 }: MovieCardProps) {
     </Link>
   );
 }
+
+export const MovieCard = memo(MovieCardInner);

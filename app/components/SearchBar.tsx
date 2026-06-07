@@ -1,8 +1,8 @@
-import { type FormEvent, useRef, useEffect } from "react";
+import { type FormEvent, useRef, useEffect, useCallback, memo } from "react";
 import { useSearch } from "~/hooks/useSearch";
 import { useNavigate } from "react-router";
 
-export function SearchBar() {
+function SearchBarInner() {
   const { query, results, loading, setQuery } = useSearch();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,17 +23,21 @@ export function SearchBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setQuery]);
 
-  function handleSubmit(e: FormEvent) {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
     }
-  }
+  }, [query, navigate]);
 
-  function handleSelect(id: number, mediaType: string) {
+  const handleSelect = useCallback((id: number, mediaType: string) => {
     setQuery("");
     navigate(`/${mediaType === "tv" ? "tv" : "movies"}/${id}`);
-  }
+  }, [setQuery, navigate]);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, [setQuery]);
 
   const showDropdown = query.trim().length > 0;
 
@@ -45,7 +49,7 @@ export function SearchBar() {
             ref={inputRef}
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Search movies..."
             aria-label="Search movies and TV shows"
             className="w-full rounded-full border border-gray-300 bg-white/90 px-4 py-2 pl-10 text-sm text-gray-900 placeholder-gray-500 backdrop-blur transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-gray-600 dark:bg-gray-800/90 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-blue-400"
@@ -133,3 +137,5 @@ export function SearchBar() {
     </div>
   );
 }
+
+export const SearchBar = memo(SearchBarInner);

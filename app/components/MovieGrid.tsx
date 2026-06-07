@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { TMDBMedia } from "~/lib/types";
 import { MovieCard } from "~/components/MovieCard";
 
@@ -9,7 +10,7 @@ interface MovieGridProps {
   emptyMessage?: string;
 }
 
-export function MovieGrid({
+function MovieGridInner({
   items,
   loading = false,
   error = null,
@@ -78,3 +79,5 @@ export function MovieGrid({
     </section>
   );
 }
+
+export const MovieGrid = memo(MovieGridInner);
