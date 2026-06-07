@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useCallback, type ReactNode } from "react";
 import { useSearchParams } from "react-router";
 import type { Route } from "./+types/home";
 import { getTrending, getPopular, getTopRated, getUpcoming } from "~/lib/tmdb.server";
@@ -92,6 +92,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    performance.mark("home-render-start");
     setTrending(trending);
     setPopular(popular);
     setTopRated(topRated);
@@ -99,21 +100,23 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     setViewMode(view);
     setMediaType(mediaType);
     if (error) setError(error);
+    performance.mark("home-state-sync-end");
+    performance.measure("home-state-sync", "home-render-start", "home-state-sync-end");
   }, []);
 
-  function handleViewChange(newView: ViewMode) {
+  const handleViewChange = useCallback((newView: ViewMode) => {
     setSearchParams((prev) => {
       prev.set("view", newView);
       return prev;
     });
-  }
+  }, [setSearchParams]);
 
-  function handleMediaTypeChange(newType: MediaType) {
+  const handleMediaTypeChange = useCallback((newType: MediaType) => {
     setSearchParams((prev) => {
       prev.set("mediaType", newType);
       return prev;
     });
-  }
+  }, [setSearchParams]);
 
   return (
     <div>

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -31,6 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="performance-audit" content="lighthouse-mvp" />
         <Meta />
         <Links />
       </head>
@@ -43,12 +45,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <AppProvider>
       <Navbar />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
     </AppProvider>
   );
