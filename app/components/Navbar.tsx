@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { Link, useLocation } from "react-router";
 import { SearchBar } from "~/components/SearchBar";
 import { useState } from "react";
@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { to: "/?view=popular", label: "Popular" },
   { to: "/?view=top_rated", label: "Top Rated" },
   { to: "/?view=upcoming", label: "Upcoming" },
-] as const;
+];
 
 function NavbarInner() {
   const location = useLocation();
@@ -16,22 +16,17 @@ function NavbarInner() {
 
   const handleMobileMenuClose = () => setMobileMenuOpen(false);
 
-  const navLinks = useMemo(() => NAV_ITEMS.map((link) => {
-    const isActive = location.pathname === link.to && !link.to.includes("?");
-    return (
-      <Link
-        key={link.label}
-        to={link.to}
-        className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-          isActive
-            ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-        }`}
-      >
-        {link.label}
-      </Link>
-    );
-  }), [location.pathname]);
+  function linkClass(isActive: boolean) {
+    return `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      isActive
+        ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+    }`;
+  }
+
+  function isActiveLink(link: typeof NAV_ITEMS[number]) {
+    return location.pathname === link.to && !link.to.includes("?");
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-md dark:border-gray-700/60 dark:bg-gray-950/80">
@@ -46,7 +41,11 @@ function NavbarInner() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex" aria-label="Main navigation">
-          {navLinks}
+          {NAV_ITEMS.map((link) => (
+            <Link key={link.label} to={link.to} className={linkClass(isActiveLink(link))}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex-1" />
@@ -79,23 +78,20 @@ function NavbarInner() {
           aria-label="Mobile navigation"
         >
           <div className="space-y-1 px-4 py-3">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.to && !link.to.includes("?");
-              return (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  onClick={handleMobileMenuClose}
-                  className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {NAV_ITEMS.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                onClick={handleMobileMenuClose}
+                className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActiveLink(link)
+                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </nav>
       )}
