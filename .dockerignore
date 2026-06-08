@@ -1,0 +1,63 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Informes de diagnóstico
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Datos de tiempo de ejecución
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directorio de cobertura utilizado por herramientas como istanbul
+coverage
+*.lcov
+.nyc_output
+
+# Addons binarios compilados
+build/Release
+
+# Directorios de dependencias
+node_modules/
+jspm_packages/
+
+# Caché de TypeScript
+*.tsbuildinfo
+
+# Caché de npm
+.npm
+
+# Caché de eslint
+.eslintcache
+
+# Atributos de carpeta de Mac OS
+.DS_Store
+
+# React Router / Vite salida de compilación
+build
+dist
+.react-router
+
+# Variables de entorno (SEGURIDAD: Evita que se copien secretos)
+.env
+.env.test
+.env.production
+.env.local
+.env.*
+
+# Proyecto específico
+Dockerfile
+.dockerignore
+README.md
+DOCUMENTACION_MEJORAS_FRONTEND.md
+.git
+.gitignore
+.vscode
+.idea
