@@ -11,6 +11,7 @@ import {
 import type { Route } from "./+types/root";
 import { AppProvider } from "~/lib/state";
 import { Navbar } from "~/components/Navbar";
+import "~/lib/performance";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [

@@ -148,7 +148,7 @@ function hasFavorite(favorites: TMDBMedia[], media: TMDBMedia) {
   return favorites.some((item) => getMediaKey(item) === getMediaKey(media));
 }
 
-function appReducer(state: AppState, action: AppAction): AppState {
+export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "SET_QUERY":
       return { ...state, query: action.payload };
