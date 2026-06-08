@@ -1,6 +1,7 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Link } from "react-router";
 import type { TMDBMedia } from "~/lib/types";
+import { useAppState } from "~/lib/state";
 
 interface MovieCardProps {
   media: TMDBMedia;
@@ -14,6 +15,14 @@ function MovieCardInner({ media, index = 0 }: MovieCardProps) {
   const date = "release_date" in media ? media.release_date : media.first_air_date;
   const year = date?.slice(0, 4) ?? "";
   const linkTo = media.media_type === "tv" ? `/tv/${media.id}` : `/movies/${media.id}`;
+  const { isFavorite, toggleFavorite } = useAppState();
+  const favorited = isFavorite(media);
+
+  const handleFavoriteClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(media);
+  }, [media, toggleFavorite]);
 
   const poster = useMemo(() => media.poster_path ? (
     <img
@@ -39,6 +48,25 @@ function MovieCardInner({ media, index = 0 }: MovieCardProps) {
       <div className="aspect-[2/3] overflow-hidden bg-gray-200 dark:bg-gray-700">
         {poster}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <button
+          onClick={handleFavoriteClick}
+          className="absolute right-2 top-2 z-10 rounded-full bg-black/40 p-1.5 text-white transition-colors hover:bg-black/60"
+          aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+        >
+          <svg
+            className={`h-4 w-4 ${favorited ? "text-red-500" : "text-white/80"}`}
+            fill={favorited ? "currentColor" : "none"}
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
+          </svg>
+        </button>
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-3">

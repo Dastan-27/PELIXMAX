@@ -6,8 +6,6 @@ const envSchema = z.object({
   TMDB_API_KEY: z.string().optional(), // Optional, as the access token is the recommended way now
 });
 
-type EnvSchema = z.infer<typeof envSchema>;
-
 /**
  * Validates and exports the environment variables.
  * In a React Router / Remix Node.js app, process.env is populated at runtime.

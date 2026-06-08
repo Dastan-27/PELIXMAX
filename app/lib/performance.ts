@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const PERFORMANCE_PREFIX = "[PelixMax Perf]";
 
 export function markComponentRender(name: string) {

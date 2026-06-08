@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
 import { useAppState } from "~/lib/state";
+import type { TMDBMedia } from "~/lib/types";
 
 export function useTrending() {
   const { state, setTrending, setLoading, setError } = useAppState();
-  const fetcher = useFetcher<{ ok: boolean; results: any[]; error?: string }>();
+  const fetcher = useFetcher<{ ok: boolean; results: TMDBMedia[]; error?: string }>();
 
   useEffect(() => {
     if (state.trending.length > 0) return;

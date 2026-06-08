@@ -7,6 +7,7 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
+    "lint": "eslint .",
     "test": "vitest",
     "test:ui": "vitest --ui"
   },
@@ -21,20 +22,24 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@react-router/dev": "7.16.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
     "@types/node": "^22",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/user-event": "^14.0.0",
-    "jsdom": "^21.0.0",
-    "vitest": "^0.34.0",
     "@vitest/ui": "^0.34.0",
+    "eslint": "9.20.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^21.0.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "typescript-eslint": "^8.60.1",
+    "vite": "^8.0.3",
+    "vitest": "^0.34.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

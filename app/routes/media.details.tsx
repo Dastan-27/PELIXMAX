@@ -1,7 +1,12 @@
-import { Link } from "react-router";
+import { lazy, Suspense, useEffect, useMemo } from "react";
 import type { Route } from "./+types/media.details";
 import { getMediaDetails } from "~/lib/tmdb.server";
 import type { MediaType, TMDBMovieDetails } from "~/lib/types";
+import { useAppState } from "~/lib/state";
+
+const CastSection = lazy(() => import("~/components/CastSection"));
+const TrailerPlayer = lazy(() => import("~/components/TrailerPlayer"));
+const RecommendationsGrid = lazy(() => import("~/components/RecommendationsGrid"));
 
 type MediaDetailsData = Omit<TMDBMovieDetails, "media_type" | "title" | "release_date"> & {
   media_type: MediaType;
@@ -56,33 +61,40 @@ export function meta({ data }: Route.MetaArgs) {
 
 const imageBase = "https://image.tmdb.org/t/p";
 
+const formatCurrency = (n: number) =>
+  n > 0
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(n)
+    : null;
+
 export default function MediaDetails({ loaderData }: Route.ComponentProps) {
   const media = loaderData as MediaDetailsData;
   const title = getDetailsTitle(media);
   const date = getDetailsDate(media);
   const runtime = media.runtime || media.episode_run_time?.[0];
+  const { isFavorite, toggleFavorite } = useAppState();
+  const favorited = isFavorite(media as Parameters<typeof isFavorite>[0]);
 
-  const backdrop = media.backdrop_path
-    ? `${imageBase}/w1280${media.backdrop_path}`
-    : null;
-  const poster = media.poster_path
-    ? `${imageBase}/w500${media.poster_path}`
-    : null;
+  useEffect(() => {
+    performance.mark("media-detail-render");
+  }, []);
 
-  const topCast = media.credits?.cast?.slice(0, 10) ?? [];
-  const trailer = media.videos?.results?.find(
-    (v) => v.site === "YouTube" && v.type === "Trailer"
-  );
-  const recommendations = media.recommendations?.results?.slice(0, 6) ?? [];
+  const backdrop = useMemo(() =>
+    media.backdrop_path ? `${imageBase}/w1280${media.backdrop_path}` : null,
+  [media.backdrop_path]);
 
-  const formatCurrency = (n: number) =>
-    n > 0
-      ? new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          maximumFractionDigits: 0,
-        }).format(n)
-      : null;
+  const poster = useMemo(() =>
+    media.poster_path ? `${imageBase}/w500${media.poster_path}` : null,
+  [media.poster_path]);
+
+  const topCast = useMemo(() => media.credits?.cast?.slice(0, 10) ?? [], [media.credits]);
+  const trailer = useMemo(() =>
+    media.videos?.results?.find((v) => v.site === "YouTube" && v.type === "Trailer"),
+  [media.videos]);
+  const recommendations = useMemo(() => media.recommendations?.results?.slice(0, 6) ?? [], [media.recommendations]);
 
   return (
     <div>
@@ -107,14 +119,36 @@ export default function MediaDetails({ loaderData }: Route.ComponentProps) {
                 src={poster}
                 alt={title}
                 className="w-40 rounded-xl shadow-lg sm:w-48 md:w-64"
+                sizes="(max-width: 768px) 160px, (max-width: 1024px) 192px, 256px"
               />
             </div>
           )}
 
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl lg:text-4xl">
-              {title}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl lg:text-4xl">
+                {title}
+              </h1>
+              <button
+                onClick={() => toggleFavorite(media as Parameters<typeof toggleFavorite>[0])}
+                className="shrink-0 rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+              >
+                <svg
+                  className={`h-6 w-6 ${favorited ? "text-red-500" : "text-gray-400"}`}
+                  fill={favorited ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
+            </div>
 
             {media.tagline && (
               <p className="mt-2 text-base italic text-gray-500 dark:text-gray-400 sm:mt-3 sm:text-lg">
@@ -200,114 +234,21 @@ export default function MediaDetails({ loaderData }: Route.ComponentProps) {
         </div>
 
         {topCast.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl">Cast</h2>
-            <div className="mt-4 flex gap-3 overflow-x-auto pb-4 sm:gap-4">
-              {topCast.map((person) => (
-                <div
-                  key={person.id}
-                  className="w-20 shrink-0 text-center sm:w-28"
-                >
-                  {person.profile_path ? (
-                    <img
-                      src={`${imageBase}/w185${person.profile_path}`}
-                      alt={person.name}
-                      className="mx-auto h-20 w-20 rounded-full object-cover sm:h-28 sm:w-28"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 sm:h-28 sm:w-28">
-                      <svg
-                        className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                  <p className="mt-2 truncate text-xs font-medium text-gray-900 dark:text-gray-100">
-                    {person.name}
-                  </p>
-                  <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {person.character}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+          <Suspense fallback={<div className="flex justify-center py-10"><div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" /></div>}>
+            <CastSection cast={topCast} />
+          </Suspense>
         )}
 
         {trailer && (
-          <section className="mt-12">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl">
-              Trailer
-            </h2>
-            <div className="mt-4 aspect-video overflow-hidden rounded-xl">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}`}
-                title={trailer.name}
-                className="h-full w-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            </div>
-          </section>
+          <Suspense fallback={<div className="flex justify-center py-10"><div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" /></div>}>
+            <TrailerPlayer videoKey={trailer.key} title={trailer.name} />
+          </Suspense>
         )}
 
         {recommendations.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl">
-              Recommendations
-            </h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-4">
-              {recommendations.map((rec) => {
-                const recTitle = "title" in rec ? rec.title : rec.name;
-                const recLink = rec.media_type === "tv" ? `/tv/${rec.id}` : `/movies/${rec.id}`;
-                return (
-                  <Link
-                    key={rec.id}
-                    to={recLink}
-                    className="group rounded-lg overflow-hidden bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-gray-800"
-                  >
-                    {rec.poster_path ? (
-                      <img
-                        src={`${imageBase}/w342${rec.poster_path}`}
-                        alt={recTitle}
-                        className="aspect-[2/3] w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex aspect-[2/3] items-center justify-center bg-gray-200 dark:bg-gray-700">
-                        <svg
-                          className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    <p className="truncate p-2 text-xs font-medium text-gray-900 dark:text-gray-100">
-                      {recTitle}
-                    </p>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
+          <Suspense fallback={<div className="flex justify-center py-10"><div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" /></div>}>
+            <RecommendationsGrid items={recommendations} />
+          </Suspense>
         )}
       </div>
     </div>

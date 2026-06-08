@@ -2,10 +2,11 @@ import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import { useDebounce } from "~/hooks/useDebounce";
 import { useAppState } from "~/lib/state";
+import type { TMDBMedia } from "~/lib/types";
 
 export function useSearch() {
   const { state, setSearchResults, setQuery, setLoading, setError } = useAppState();
-  const fetcher = useFetcher<{ ok: boolean; results: any[]; error?: string }>();
+  const fetcher = useFetcher<{ ok: boolean; results: TMDBMedia[]; error?: string }>();
   const debouncedQuery = useDebounce(state.query, 400);
   const previousQuery = useRef("");
 
